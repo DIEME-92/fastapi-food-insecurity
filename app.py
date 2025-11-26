@@ -1,14 +1,26 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
+from dotenv import load_dotenv
+import os
 import joblib
 import pandas as pd
 
-# ✅ Initialisation FastAPI
-app = FastAPI()
+from database import SessionLocal, engine
+from models import Base, PredictionLog
 
-# ✅ Chargement du modèle ML
-model = joblib.load("modele_food_insecurity.pkl")
+# ✅ Initialisation
+load_dotenv()
+app = FastAPI()
+Base.metadata.create_all(bind=engine)
+
+# ✅ Chargement du modèle avec vérification
+model_path = os.getenv("MODEL_PATH")
+
+if not model_path or not os.path.exists(model_path):
+    raise FileNotFoundError(f"❌ Le fichier modèle spécifié dans MODEL_PATH est introuvable : {model_path}")
+
+model = joblib.load(model_path)
 
 # ✅ Variables utilisées
 selected_features = [
@@ -37,7 +49,6 @@ def predict(data: InputData):
         input_df = pd.DataFrame([data.dict()])
         input_filtered = input_df[selected_features]
 
-        # 🔍 Cas neutre
         if input_filtered.sum().sum() == 0:
             niveau = "aucune"
             prediction_binaire = 0
@@ -50,7 +61,13 @@ def predict(data: InputData):
             niveau = "sévère" if prediction_binaire == 1 else "modérée"
             profil = "critique" if prediction_binaire == 1 else "intermédiaire"
 
-        # ✅ Réponse API
+        # ✅ Sauvegarde en base
+        db = SessionLocal()
+        log = PredictionLog(niveau=niveau, profil=profil, score=str(round(proba[1], 4)))
+        db.add(log)
+        db.commit()
+        db.close()
+
         return JSONResponse(content={
             "prediction": prediction_binaire,
             "niveau": niveau,
@@ -63,8 +80,7 @@ def predict(data: InputData):
         }, media_type="application/json; charset=utf-8")
 
     except Exception as e:
-        print("❌ Erreur dans /predict :", str(e))
         return JSONResponse(content={
-            "error": "Une erreur est survenue lors de la prédiction.",
+            "error": "Une erreur est survenue",
             "details": str(e)
-        }, status_code=500, media_type="application/json; charset=utf-8")
+        }, status_code=500)
