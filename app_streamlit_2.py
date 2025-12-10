@@ -17,10 +17,10 @@ def load_data():
 
 # affichage de la table de données
 df = load_data()
-df_sample =df.sample(100)
+#df_sample =df.sample(100)
 if st.sidebar.checkbox("Afficher les données brutes", False):
     st.subheader("Jeu de données : Echantillon de 100 observateurs")
-    st.write(df_sample)
+    st.write(df)
 
 seed = 123
 
