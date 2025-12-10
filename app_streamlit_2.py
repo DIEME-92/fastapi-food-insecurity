@@ -13,14 +13,14 @@ def load_data():
 # 📥 Chargement du dataset nettoyé
 #chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
     df = pd.read_csv("data_encoded_1.csv")
-    return data
+    return df
 
 # affichage de la table de données
 df = load_data()
-#df_sample =df.sample(100)
+df_sample =df.sample(100)
 if st.sidebar.checkbox("Afficher les données brutes", False):
     st.subheader("Jeu de données : Echantillon de 100 observateurs")
-    st.write(df)
+    st.write(df_sample)
 
 seed = 123
 
