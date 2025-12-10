@@ -7,12 +7,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+# fonction importation des données
+@st.cache(persist=True)
+def load_data():
 # 📥 Chargement du dataset nettoyé
 #chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
-df = pd.read_csv("data_encoded_1.csv")
+    df = pd.read_csv("data_encoded_1.csv")
+    return data
+
+# affichage de la table de données
+df = load_data()
+df_sample =df.sample(100)
+if st.sidebar.checkbox("Afficher les données brutes", False):
+    st.subheader("Jeu de données : Echantillon de 100 observateurs")
+    st.write(df_sample)
+
+seed = 123
 
 st.title("📊 Analyse exploratoire du dataset")
 st.write("Voici quelques statistiques descriptives sur les réponses des participants.")
+st.subheader("Hauteur : DOUDOU DIEME")
 
 st.subheader("📌 Statistiques descriptives")
 st.dataframe(df.describe().round(2))
