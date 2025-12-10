@@ -8,8 +8,8 @@ import seaborn as sns
 import streamlit as st
 
 # 📥 Chargement du dataset nettoyé
-chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
-df = pd.read_csv(chemin_projet + "data_encoded_1.csv")
+#chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
+df = pd.read_csv("data_encoded_1.csv")
 
 st.title("📊 Analyse exploratoire du dataset")
 st.write("Voici quelques statistiques descriptives sur les réponses des participants.")
