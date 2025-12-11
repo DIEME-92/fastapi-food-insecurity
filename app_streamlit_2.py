@@ -19,7 +19,7 @@ def load_data():
 df = load_data()
 df_sample =df.sample(100)
 if st.sidebar.checkbox("Afficher les données brutes", False):
-    st.subheader("Jeu de données : Echantillon de 100 observateurs")
+    st.subheader("Jeu de données 'data_encoded_1.csv' : Echantillon de 100 observateurs")
     st.write(df_sample)
 
 seed = 123
@@ -40,13 +40,47 @@ variables = [
 ]
 
 # Matrice de corrélation
-st.subheader("📈 Matrice de corrélation")
+st.subheader("📈 Matrice de corrélation des variables")
 fig, ax = plt.subplots(figsize=(20, 10))
 corr = df[variables].corr()
 sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
 st.subheader("🧠 Interprétation des corrélations")
+
+# Fonction d'interprétation
+def interpret_correlation(value):
+    if abs(value) < 0.1:
+        strength = "Corrélation négligeable"
+    elif abs(value) < 0.3:
+        strength = "Corrélation faible"
+    elif abs(value) < 0.5:
+        strength = "Corrélation modérée"
+    elif abs(value) < 0.7:
+        strength = "Corrélation forte"
+    else:
+        strength = "Corrélation très forte"
+
+    direction = "positive" if value > 0 else "négative"
+    return f"{strength} ({direction})"
+
+# Construction du tableau d'interprétation
+interpretation_rows = []
+
+for var1 in variables:
+    for var2 in variables:
+        if var1 != var2:
+            coef = corr.loc[var1, var2]
+            interpretation_rows.append({
+                "Variable 1": var1,
+                "Variable 2": var2,
+                "Corrélation": round(coef, 3),
+                "Interprétation": interpret_correlation(coef)
+            })
+
+# Affichage dans Streamlit
+st.write("Voici l'interprétation automatique des corrélations entre les variables :")
+st.dataframe(pd.DataFrame(interpretation_rows))
 
 # Calcul de la matrice
 correlation_matrix = df[variables].corr()
