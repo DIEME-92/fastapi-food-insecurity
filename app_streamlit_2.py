@@ -87,45 +87,7 @@ for var1 in variables:
 st.write("Voici l'interprétation automatique des corrélations entre les variables :")
 st.dataframe(pd.DataFrame(interpretation_rows))
 ########################################
-st.subheader("📍 Prévalence de l'insécurité alimentaire par région")
-
-# 👉 Adapte ces noms de colonnes si nécessaire
-col_region = "region"
-col_ia = "IA_niveau"
-
-if col_region in df.columns and col_ia in df.columns:
-
-    # On considère IA modérée + sévère comme "en insécurité"
-    df["IA_binaire"] = df[col_ia].isin(["modérée", "sévère"]).astype(int)
-
-    prevalence = (
-        df.groupby(col_region)["IA_binaire"]
-        .mean()
-        .reset_index(name="Prévalence (%)")
-    )
-
-    prevalence["Prévalence (%)"] = (prevalence["Prévalence (%)"] * 100).round(2)
-
-    st.write("Prévalence de l'insécurité alimentaire (modérée + sévère) par région :")
-    st.dataframe(prevalence)
-
-    # Graphique barres
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.barplot(data=prevalence, x=col_region, y="Prévalence (%)", palette="viridis", ax=ax)
-    ax.set_title("Prévalence de l'insécurité alimentaire par région")
-    ax.set_ylabel("Prévalence (%)")
-    ax.set_xlabel("Région")
-    plt.xticks(rotation=45)
-    st.pyplot(fig)
-
-else:
-    st.warning("⚠️ Vérifie que les colonnes 'region' et 'IA_niveau' existent bien dans le dataset.")
-
-
-
-
-
-########################################"""
+########################################
 ######
 st.sidebar.subheader("📊 Sélection des variables à afficher")
 
