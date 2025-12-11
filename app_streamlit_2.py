@@ -87,6 +87,24 @@ for var1 in variables:
 st.write("Voici l'interprétation automatique des corrélations entre les variables :")
 st.dataframe(pd.DataFrame(interpretation_rows))
 
+######
+st.sidebar.subheader("📊 Histogrammes des variables")
+
+# Checkboxes dans la sidebar
+choix_hist = {}
+for var in variables:
+    choix_hist[var] = st.sidebar.checkbox(f"Afficher : {var}", value=False)
+
+# Affichage des histogrammes dans la page principale
+for var, afficher in choix_hist.items():
+    if afficher:
+        st.subheader(f"Histogramme : {var}")
+        fig, ax = plt.subplots()
+        sns.histplot(df[var], bins=10, kde=True, color='orange', ax=ax)
+        ax.set_title(f"Distribution de : {var}")
+        st.pyplot(fig)
+
+#####
 
 st.subheader("📊 Histogrammes des variables clés")
 
