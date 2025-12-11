@@ -64,19 +64,24 @@ def interpret_correlation(value):
     direction = "positive" if value > 0 else "négative"
     return f"{strength} ({direction})"
 
-# Construction du tableau d'interprétation
+# Construction du tableau d'interprétation SANS DOUBLONS
 interpretation_rows = []
+seen_pairs = set()
 
 for var1 in variables:
     for var2 in variables:
         if var1 != var2:
-            coef = corr.loc[var1, var2]
-            interpretation_rows.append({
-                "Variable 1": var1,
-                "Variable 2": var2,
-                "Corrélation": round(coef, 3),
-                "Interprétation": interpret_correlation(coef)
-            })
+            pair = tuple(sorted([var1, var2]))  # ex: ("q601", "q603")
+
+            if pair not in seen_pairs:
+                seen_pairs.add(pair)
+                coef = corr.loc[var1, var2]
+                interpretation_rows.append({
+                    "Variable 1": pair[0],
+                    "Variable 2": pair[1],
+                    "Corrélation": round(coef, 3),
+                    "Interprétation": interpret_correlation(coef)
+                })
 
 # Affichage dans Streamlit
 st.write("Voici l'interprétation automatique des corrélations entre les variables :")
