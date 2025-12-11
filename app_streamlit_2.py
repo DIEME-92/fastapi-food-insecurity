@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import matplotlib.pyplot as plt
-
+import random
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -90,17 +90,29 @@ st.dataframe(pd.DataFrame(interpretation_rows))
 ######
 st.sidebar.subheader("📊 Sélection des variables à afficher")
 
+# ✅ Multiselect dans la sidebar
 vars_selectionnees = st.sidebar.multiselect(
     "Choisissez les variables pour afficher leurs histogrammes :",
     variables
 )
 
-for var in vars_selectionnees:
-    st.subheader(f"Histogramme : {var}")
-    fig, ax = plt.subplots()
-    sns.histplot(df[var], bins=10, kde=True, color='orange', ax=ax)
-    ax.set_title(f"Distribution de : {var}")
-    st.pyplot(fig)
+# ✅ Palette de couleurs automatiques
+couleurs = sns.color_palette("husl", len(vars_selectionnees))
+
+# ✅ Affichage en colonnes (2 par ligne)
+if vars_selectionnees:
+    cols = st.columns(2)
+    index = 0
+
+    for var, couleur in zip(vars_selectionnees, couleurs):
+        with cols[index % 2]:
+            st.subheader(f"Histogramme : {var}")
+            fig, ax = plt.subplots()
+            sns.histplot(df[var], bins=10, kde=True, color=couleur, ax=ax)
+            ax.set_title(f"Distribution de : {var}")
+            st.pyplot(fig)
+
+        index += 1
 
 #####
 
