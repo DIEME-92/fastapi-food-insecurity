@@ -105,12 +105,12 @@ for var in vars_selectionnees:
 #####
 
 
-selected_var = st.selectbox("📌 Choisissez une variable à explorer :", variables)
+#selected_var = st.selectbox("📌 Choisissez une variable à explorer :", variables)
 
-fig, ax = plt.subplots()
-sns.histplot(df[selected_var], bins=10, kde=True, color='skyblue', ax=ax)
-ax.set_title(f"Distribution de : {selected_var}")
-st.pyplot(fig)
+#fig, ax = plt.subplots()
+#sns.histplot(df[selected_var], bins=10, kde=True, color='skyblue', ax=ax)
+#ax.set_title(f"Distribution de : {selected_var}")
+#st.pyplot(fig)
 
 
 st.set_page_config(page_title="Prédiction Insécurité Alimentaire", page_icon="🍽️")
