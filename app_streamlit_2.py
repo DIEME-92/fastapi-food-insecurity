@@ -87,31 +87,6 @@ for var1 in variables:
 st.write("Voici l'interprétation automatique des corrélations entre les variables :")
 st.dataframe(pd.DataFrame(interpretation_rows))
 
-# Calcul de la matrice
-correlation_matrix = df[variables].corr()
-
-# Seuil de corrélation forte
-seuil = 0.6
-fortes_corrélations = []
-
-# Parcours des paires de variables
-for i in range(len(variables)):
-    for j in range(i + 1, len(variables)):
-        var1 = variables[i]
-        var2 = variables[j]
-        corr = correlation_matrix.loc[var1, var2]
-        if abs(corr) >= seuil:
-            relation = "positive" if corr > 0 else "négative"
-            fortes_corrélations.append(f"- **{var1}** et **{var2}** sont fortement corrélées ({relation}, coefficient = {corr:.2f})")
-
-# Affichage
-if fortes_corrélations:
-    for ligne in fortes_corrélations:
-        st.markdown(ligne)
-    st.info("Ces corrélations suggèrent que certains comportements alimentaires sont liés entre eux. Par exemple, sauter un repas est souvent associé à manger moins que nécessaire.")
-else:
-    st.write("Aucune corrélation forte détectée entre les variables sélectionnées.")
-
 
 st.subheader("📊 Histogrammes des variables clés")
 
