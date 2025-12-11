@@ -10,12 +10,12 @@ import streamlit as st
 # fonction importation des données
 @st.cache(persist=True)
 def load_data():
-# 📥 Chargement du dataset nettoyé
+# 📥 Chargement du dataset nettoyé avant application
 #chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
     df = pd.read_csv("data_encoded_1.csv")
     return df
 
-# affichage de la table de données
+# affichage de la table de données 
 df = load_data()
 df_sample =df.sample(100)
 if st.sidebar.checkbox("Afficher les données brutes", False):
@@ -39,7 +39,7 @@ variables = [
     "q601_ne_pas_manger_nourriture_saine_nutritive"
 ]
 
-# Matrice de corrélation
+# Matrice de corrélation des variables
 st.subheader("📈 Matrice de corrélation des variables")
 fig, ax = plt.subplots(figsize=(20, 10))
 corr = df[variables].corr()
@@ -48,7 +48,7 @@ st.pyplot(fig)
 
 st.subheader("🧠 Interprétation des corrélations")
 
-# Fonction d'interprétation
+# Fonction d'interprétation des variables
 def interpret_correlation(value):
     if abs(value) < 0.1:
         strength = "Corrélation négligeable"
@@ -64,14 +64,14 @@ def interpret_correlation(value):
     direction = "positive" if value > 0 else "négative"
     return f"{strength} ({direction})"
 
-# Construction du tableau d'interprétation SANS DOUBLONS
+# Construction du tableau d'interprétation exclut des doublons
 interpretation_rows = []
 seen_pairs = set()
 
 for var1 in variables:
     for var2 in variables:
         if var1 != var2:
-            pair = tuple(sorted([var1, var2]))  # ex: ("q601", "q603")
+            pair = tuple(sorted([var1, var2]))  # ex: avec ("q601", "q603")
 
             if pair not in seen_pairs:
                 seen_pairs.add(pair)
@@ -83,7 +83,7 @@ for var1 in variables:
                     "Interprétation": interpret_correlation(coef)
                 })
 
-# Affichage dans Streamlit
+# Affichage dans l'l'application Streamlit
 st.write("Voici l'interprétation automatique des corrélations entre les variables :")
 st.dataframe(pd.DataFrame(interpretation_rows))
 ########################################
@@ -91,16 +91,16 @@ st.dataframe(pd.DataFrame(interpretation_rows))
 ######
 st.sidebar.subheader("📊 Sélection des variables à afficher")
 
-# ✅ Multiselect dans la sidebar
+# ✅ Option Multiselect dans la sidebar pour l'affichage des histogrammes
 vars_selectionnees = st.sidebar.multiselect(
     "Choisissez les variables pour afficher leurs histogrammes :",
     variables
 )
 
-# ✅ Palette de couleurs automatiques
+# ✅ Choix de palette de couleurs automatiques pour chaque histogramme
 couleurs = sns.color_palette("husl", len(vars_selectionnees))
 
-# ✅ Affichage en colonnes (2 par ligne)
+# ✅ Affichage en colonnes des histogrammes (2 à 2 par ligne)
 if vars_selectionnees:
     cols = st.columns(2)
     index = 0
@@ -115,8 +115,7 @@ if vars_selectionnees:
 
         index += 1
 
-#####
-
+##########################################################################
 
 #selected_var = st.selectbox("📌 Choisissez une variable à explorer :", variables)
 
@@ -125,20 +124,20 @@ if vars_selectionnees:
 #ax.set_title(f"Distribution de : {selected_var}")
 #st.pyplot(fig)
 
-
+##############################"""PREDICTION DE L'INSECURITE ALIMENTAIRE """###################################################
 st.set_page_config(page_title="Prédiction Insécurité Alimentaire", page_icon="🍽️")
 
 st.title("🧠 Prédiction d'insécurité alimentaire")
 st.write("Indiquez vos réponses ci-dessous pour obtenir une prédiction.")
 
-# 🔹 Formulaire utilisateur
+# 🔹 Voici le formulaire utilisateur
 q606 = st.number_input("Combien de fois avez-vous eu faim sans manger ?", min_value=0, max_value=10, value=0)
 q605 = st.number_input("Combien de fois avez-vous manqué de nourriture par manque d'argent ?", min_value=0, max_value=10, value=0)
 q604 = st.number_input("Combien de fois avez-vous mangé moins que nécessaire ?", min_value=0, max_value=10, value=0)
 q603 = st.number_input("Combien de repas avez-vous sauté aujourd'hui ?", min_value=0, max_value=10, value=0)
 q601 = st.number_input("Combien de fois avez-vous mangé une nourriture peu nutritive ?", min_value=0, max_value=10, value=0)
 
-# 🔹 Bouton de prédiction
+# 🔹 Affichage du bouton de prédiction
 if st.button("🔍 Lancer la prédiction"):
     payload = {
         "q606_1_avoir_faim_mais_ne_pas_manger": q606,
