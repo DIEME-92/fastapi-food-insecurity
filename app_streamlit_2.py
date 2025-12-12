@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+# ✅ Chargement des données
+@st.cache
+def load_data_raw():
+    return pd.read_csv("data.csv")   # Base AVANT normalisation
+data = load_data_raw()
+
 # fonction importation des données
 @st.cache(persist=True)
 def load_data():
@@ -125,6 +131,51 @@ if vars_selectionnees:
 #st.pyplot(fig)
 
 ##############################"""PREDICTION DE L'INSECURITE ALIMENTAIRE """###################################################
+##############################################################################################
+###########################################   data ##################################"
+# ✅ Prévalence IA par région
+st.subheader("📍 Prévalence de l'insécurité alimentaire par région")
+
+data["IA_binaire"] = data["insécurité_alimentaire"].isin(["modérée", "sévère"]).astype(int)
+
+prevalence_region = (
+    data.groupby("q100_region")["IA_binaire"]
+    .mean()
+    .reset_index(name="Prévalence (%)")
+)
+
+prevalence_region["Prévalence (%)"] = (prevalence_region["Prévalence (%)"] * 100).round(2)
+
+st.dataframe(prevalence_region)
+
+fig, ax = plt.subplots(figsize=(12, 5))
+sns.barplot(data=prevalence_region, x="q100_region", y="Prévalence (%)", palette="viridis", ax=ax)
+ax.set_title("Prévalence de l'insécurité alimentaire par région")
+plt.xticks(rotation=45)
+st.pyplot(fig)
+
+
+# ✅ Prévalence IA par département
+st.subheader("📍 Prévalence de l'insécurité alimentaire par département")
+
+prevalence_dept = (
+    data.groupby("q101_departement")["IA_binaire"]
+    .mean()
+    .reset_index(name="Prévalence (%)")
+)
+
+prevalence_dept["Prévalence (%)"] = (prevalence_dept["Prévalence (%)"] * 100).round(2)
+
+st.dataframe(prevalence_dept)
+
+fig, ax = plt.subplots(figsize=(12, 5))
+sns.barplot(data=prevalence_dept, x="q101_departement", y="Prévalence (%)", palette="magma", ax=ax)
+ax.set_title("Prévalence de l'insécurité alimentaire par département")
+plt.xticks(rotation=45)
+st.pyplot(fig)
+################################################################################################
+#################################################################################################"
+###################################  data ######################""
 st.set_page_config(page_title="Prédiction Insécurité Alimentaire", page_icon="🍽️")
 
 st.title("🧠 Prédiction d'insécurité alimentaire")
