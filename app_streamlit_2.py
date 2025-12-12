@@ -10,7 +10,7 @@ import streamlit as st
 # ✅ Chargement des données
 @st.cache
 def load_data_raw():
-    return pd.read_csv("DDDIEMMME.csv")   # Base AVANT normalisation
+    return pd.read_csv("model/data/DDDIEMMME.csv")   # Base AVANT normalisation
 data = load_data_raw()
 
 data =data.sample(100)
