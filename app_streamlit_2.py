@@ -10,8 +10,13 @@ import streamlit as st
 # ✅ Chargement des données
 @st.cache
 def load_data_raw():
-    return pd.read_csv("data.csv")   # Base AVANT normalisation
+    return pd.read_csv("DDDIEMMME.csv")   # Base AVANT normalisation
 data = load_data_raw()
+
+data =data.sample(100)
+if st.sidebar.checkbox("Afficher les données brutes", False):
+    st.subheader("Jeu de données 'data_encoded_1.csv' : Echantillon de 100 observateurs")
+    st.write(data)
 
 # fonction importation des données
 @st.cache(persist=True)
