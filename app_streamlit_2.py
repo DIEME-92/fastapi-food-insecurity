@@ -1,34 +1,23 @@
 import streamlit as st
 import requests
 import matplotlib.pyplot as plt
-import random
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
 
 # ✅ Chargement des données
-# fonction importation des données
 @st.cache(persist=True)
 def load_data():
-# 📥 Chargement du dataset nettoyé avant application
-#chemin_projet = "D:/PROJET_DIT-20250506T153458Z-001/MES_PROJETS/"
     df = pd.read_csv("data_encoded_1.csv")
     return df
 
-# affichage de la table de données 
 df = load_data()
-df_sample =df.sample(100)
+df_sample = df.sample(100)
+
 if st.sidebar.checkbox("Afficher les données brutes", False):
     st.subheader("Jeu de données 'data_encoded_1.csv' : Echantillon de 100 observateurs")
     st.write(df_sample)
 
-seed = 123
-
 st.title("📊 Analyse exploratoire du dataset")
-st.write("Voici quelques statistiques descriptives sur les réponses des participants.")
-st.subheader("Hauteur : DOUDOU DIEME")
-
 st.subheader("📌 Statistiques descriptives")
 st.dataframe(df.describe().round(2))
 
@@ -40,107 +29,64 @@ variables = [
     "q601_ne_pas_manger_nourriture_saine_nutritive"
 ]
 
-# Matrice de corrélation des variables
+# 🔹 Matrice de corrélation
 st.subheader("📈 Matrice de corrélation des variables")
 fig, ax = plt.subplots(figsize=(20, 10))
 corr = df[variables].corr()
 sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
 
-st.subheader("🧠 Interprétation des corrélations")
-
-# Fonction d'interprétation des variables
-def interpret_correlation(value):
-    if abs(value) < 0.1:
-        strength = "Corrélation négligeable"
-    elif abs(value) < 0.3:
-        strength = "Corrélation faible"
-    elif abs(value) < 0.5:
-        strength = "Corrélation modérée"
-    elif abs(value) < 0.7:
-        strength = "Corrélation forte"
-    else:
-        strength = "Corrélation très forte"
-
-    direction = "positive" if value > 0 else "négative"
-    return f"{strength} ({direction})"
-
-# Construction du tableau d'interprétation exclut des doublons
-interpretation_rows = []
-seen_pairs = set()
-
-for var1 in variables:
-    for var2 in variables:
-        if var1 != var2:
-            pair = tuple(sorted([var1, var2]))  # ex: avec ("q601", "q603")
-
-            if pair not in seen_pairs:
-                seen_pairs.add(pair)
-                coef = corr.loc[var1, var2]
-                interpretation_rows.append({
-                    "Variable 1": pair[0],
-                    "Variable 2": pair[1],
-                    "Corrélation": round(coef, 3),
-                    "Interprétation": interpret_correlation(coef)
-                })
-
-# Affichage dans l'l'application Streamlit
-st.write("Voici l'interprétation automatique des corrélations entre les variables :")
-st.dataframe(pd.DataFrame(interpretation_rows))
 ########################################
+# 🔹 Performances des modèles avec sélecteur
 ########################################
-######
-st.sidebar.subheader("📊 Sélection des variables à afficher")
 
-# ✅ Option Multiselect dans la sidebar pour l'affichage des histogrammes
-vars_selectionnees = st.sidebar.multiselect(
-    "Choisissez les variables pour afficher leurs histogrammes :",
-    variables
-)
+# 📋 Performance - Random Forest
+rf_perf = pd.DataFrame({
+    "Métrique": ["Accuracy", "AUC", "Recall"],
+    "Train": [0.996152, 0.986885, 0.973770],
+    "Test": [0.994231, 0.981481, 0.962963]
+})
 
-# ✅ Choix de palette de couleurs automatiques pour chaque histogramme
-couleurs = sns.color_palette("husl", len(vars_selectionnees))
+# 📋 Performance - XGBoost
+xgb_perf = pd.DataFrame({
+    "Métrique": ["Accuracy", "AUC", "Recall"],
+    "Train": [0.996152, 0.986885, 0.973770],
+    "Test": [0.994231, 0.981481, 0.962963]
+})
 
-# ✅ Affichage en colonnes des histogrammes (2 à 2 par ligne)
-if vars_selectionnees:
-    cols = st.columns(2)
-    index = 0
+# 🔹 Sélecteur de modèle dans la sidebar
+st.sidebar.subheader("⚙️ Choix du modèle à afficher")
+modele = st.sidebar.selectbox("Sélectionnez un modèle :", ["Random Forest", "XGBoost"])
 
-    for var, couleur in zip(vars_selectionnees, couleurs):
-        with cols[index % 2]:
-            st.subheader(f"Histogramme : {var}")
-            fig, ax = plt.subplots()
-            sns.histplot(df[var], bins=10, kde=True, color=couleur, ax=ax)
-            ax.set_title(f"Distribution de : {var}")
-            st.pyplot(fig)
+# 🔹 Affichage conditionnel
+if modele == "Random Forest":
+    st.subheader("📋 Performance - Random Forest")
+    st.dataframe(rf_perf)
 
-        index += 1
+    fig, ax = plt.subplots()
+    rf_perf.set_index("Métrique")[["Train","Test"]].plot(kind="bar", ax=ax, color=["#4CAF50","#2196F3"])
+    ax.set_title("Random Forest - Performance")
+    st.pyplot(fig)
 
-##########################################################################
+elif modele == "XGBoost":
+    st.subheader("📋 Performance - XGBoost")
+    st.dataframe(xgb_perf)
 
-#selected_var = st.selectbox("📌 Choisissez une variable à explorer :", variables)
+    fig, ax = plt.subplots()
+    xgb_perf.set_index("Métrique")[["Train","Test"]].plot(kind="bar", ax=ax, color=["#FF9800","#9C27B0"])
+    ax.set_title("XGBoost - Performance")
+    st.pyplot(fig)
 
-#fig, ax = plt.subplots()
-#sns.histplot(df[selected_var], bins=10, kde=True, color='skyblue', ax=ax)
-#ax.set_title(f"Distribution de : {selected_var}")
-#st.pyplot(fig)
-
-##############################"""PREDICTION DE L'INSECURITE ALIMENTAIRE """###################################################
-#################################################################################################"
-###################################  data ######################""
-st.set_page_config(page_title="Prédiction Insécurité Alimentaire", page_icon="🍽️")
-
+########################################
+# 🔹 Formulaire de prédiction
+########################################
 st.title("🧠 Prédiction d'insécurité alimentaire")
-st.write("Indiquez vos réponses ci-dessous pour obtenir une prédiction.")
-
-# 🔹 Voici le formulaire utilisateur
 q606 = st.number_input("Combien de fois avez-vous eu faim sans manger ?", min_value=0, max_value=10, value=0)
 q605 = st.number_input("Combien de fois avez-vous manqué de nourriture par manque d'argent ?", min_value=0, max_value=10, value=0)
 q604 = st.number_input("Combien de fois avez-vous mangé moins que nécessaire ?", min_value=0, max_value=10, value=0)
 q603 = st.number_input("Combien de repas avez-vous sauté aujourd'hui ?", min_value=0, max_value=10, value=0)
 q601 = st.number_input("Combien de fois avez-vous mangé une nourriture peu nutritive ?", min_value=0, max_value=10, value=0)
 
-# 🔹 Affichage du bouton de prédiction
 if st.button("🔍 Lancer la prédiction"):
     payload = {
         "q606_1_avoir_faim_mais_ne_pas_manger": q606,
@@ -159,7 +105,6 @@ if st.button("🔍 Lancer la prédiction"):
         profil = result.get("profil", "inconnu")
         probabilites = result.get("probabilités", {})
 
-        # 🔹 Affichage du niveau
         if niveau == "sévère":
             st.error("🔴 Niveau d'insécurité alimentaire : **sévère**")
         elif niveau == "modérée":
@@ -167,14 +112,11 @@ if st.button("🔍 Lancer la prédiction"):
         else:
             st.success("🟢 Aucun signe d'insécurité alimentaire")
 
-        # 🔹 Barre de score
         st.write("### 🔎 Score de risque")
         st.progress(score)
 
-        # 🔹 Profil
         st.write(f"Profil détecté : **{profil.capitalize()}**")
 
-        # 🔹 Graphique circulaire
         st.write("### 📊 Répartition des probabilités")
         fig, ax = plt.subplots()
         labels = list(probabilites.keys())
