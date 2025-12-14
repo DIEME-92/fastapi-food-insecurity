@@ -35,6 +35,41 @@ fig, ax = plt.subplots(figsize=(20, 10))
 corr = df[variables].corr()
 sns.heatmap(corr, annot=True, cmap="coolwarm", ax=ax)
 st.pyplot(fig)
+##################################"
+#############################################################"
+
+########################################
+# 🔹 Histogrammes des variables
+########################################
+st.sidebar.subheader("📊 Sélection des variables à afficher")
+
+# ✅ Option Multiselect dans la sidebar pour l'affichage des histogrammes
+vars_selectionnees = st.sidebar.multiselect(
+    "Choisissez les variables pour afficher leurs histogrammes :",
+    variables
+)
+
+# ✅ Choix de palette de couleurs automatiques pour chaque histogramme
+couleurs = sns.color_palette("husl", len(vars_selectionnees))
+
+# ✅ Affichage en colonnes des histogrammes (2 à 2 par ligne)
+if vars_selectionnees:
+    cols = st.columns(2)
+    index = 0
+
+    for var, couleur in zip(vars_selectionnees, couleurs):
+        with cols[index % 2]:
+            st.subheader(f"Histogramme : {var}")
+            fig, ax = plt.subplots()
+            sns.histplot(df[var], bins=10, kde=True, color=couleur, ax=ax)
+            ax.set_title(f"Distribution de : {var}")
+            st.pyplot(fig)
+
+        index += 1
+
+###################################################################################""""""
+
+
 
 ########################################
 # 🔹 Performances des modèles avec sélecteur
